@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import FlipMove from 'react-flip-move'
 import autosize from 'autosize'
 import './style/index.styl'
 import {
@@ -11,13 +10,13 @@ import {
   formatErrorMsg,
   hasClassInParent,
 } from './util'
-import Avatar from './component/avatar'
-import Button from './component/button'
-import Action from './component/action'
-import Comment from './component/comment'
-import Svg from './component/svg'
-import { GT_ACCESS_TOKEN, GT_VERSION, GT_COMMENT } from './const'
+import { GT_ACCESS_TOKEN, GT_COMMENT } from './const'
 import QLGetComments from './graphql/getComments'
+import Initing from './component/initing'
+import NoInit from './component/noInit'
+import Header from './component/header'
+import Comments from './component/comments'
+import Meta from './component/meta'
 
 class GitalkComponent extends Component {
   state = {
@@ -45,6 +44,7 @@ class GitalkComponent extends Component {
     isOccurError: false,
     errorMsg: '',
   }
+
   constructor(props) {
     super(props)
     this.options = Object.assign(
@@ -195,6 +195,7 @@ class GitalkComponent extends Component {
     const issue = await this.getIssue()
     return this.getComments(issue)
   }
+
   async getUserInfo() {
     if (!this.accessToken) {
       return new Promise((resolve) => {
@@ -202,17 +203,17 @@ class GitalkComponent extends Component {
       })
     }
     try {
-      const res = await axiosGithub
-        .get('/user', {
-          headers: {
-            Authorization: `token ${this.accessToken}`,
-          },
-        })
+      const res = await axiosGithub.get('/user', {
+        headers: {
+          Authorization: `token ${this.accessToken}`,
+        },
+      })
       this.setState({ user: res.data })
     } catch (err) {
       this.logout()
     }
   }
+
   getIssueById() {
     const { owner, repo, number, clientID, clientSecret } = this.options
     const getUrl = `/repos/${owner}/${repo}/issues/${number}`
@@ -245,20 +246,20 @@ class GitalkComponent extends Component {
         })
     })
   }
+
   async getIssueByLabels() {
     const { owner, repo, id, labels, clientID, clientSecret } = this.options
 
-    const res = await axiosGithub
-      .get(`/repos/${owner}/${repo}/issues`, {
-        auth: {
-          username: clientID,
-          password: clientSecret,
-        },
-        params: {
-          labels: labels.concat(id).join(','),
-          t: Date.now(),
-        },
-      })
+    const res = await axiosGithub.get(`/repos/${owner}/${repo}/issues`, {
+      auth: {
+        username: clientID,
+        password: clientSecret,
+      },
+      params: {
+        labels: labels.concat(id).join(','),
+        t: Date.now(),
+      },
+    })
     const { createIssueManually } = this.options
     let isNoInit = false
     let issue = null
@@ -274,7 +275,7 @@ class GitalkComponent extends Component {
     this.setState({ issue, isNoInit })
     return issue
   }
-  
+
   async getIssue() {
     const { number } = this.options
     const { issue } = this.state
@@ -285,8 +286,7 @@ class GitalkComponent extends Component {
 
     if (typeof number === 'number' && number > 0) {
       const resIssue = await this.getIssueById()
-      if (!resIssue)
-        return this.getIssueByLabels()
+      if (!resIssue) return this.getIssueByLabels()
       return resIssue
     }
     return this.getIssueByLabels()
@@ -294,23 +294,23 @@ class GitalkComponent extends Component {
 
   async createIssue() {
     const { owner, repo, title, body, id, labels, url } = this.options
-    const res = await axiosGithub
-      .post(
-        `/repos/${owner}/${repo}/issues`,
-        {
-          title,
-          labels: labels.concat(id),
-          body: body ||
-            `${url} \n\n ${getMetaContent('description') ||
+    const res = await axiosGithub.post(
+      `/repos/${owner}/${repo}/issues`,
+      {
+        title,
+        labels: labels.concat(id),
+        body:
+          body ||
+          `${url} \n\n ${getMetaContent('description') ||
             getMetaContent('description', 'og:description') ||
             ''}`,
+      },
+      {
+        headers: {
+          Authorization: `token ${this.accessToken}`,
         },
-        {
-          headers: {
-            Authorization: `token ${this.accessToken}`,
-          },
-        }
-      )
+      }
+    )
     this.setState({ issue: res.data })
     return res.data
   }
@@ -321,22 +321,20 @@ class GitalkComponent extends Component {
     const { page } = this.state
 
     const issue_1 = await this.getIssue()
-    if (!issue_1)
-      return
-    const res = await axiosGithub
-      .get(issue_1.comments_url, {
-        headers: {
-          Accept: 'application/vnd.github.v3.full+json',
-        },
-        auth: {
-          username: clientID,
-          password: clientSecret,
-        },
-        params: {
-          per_page: perPage,
-          page,
-        },
-      })
+    if (!issue_1) return
+    const res = await axiosGithub.get(issue_1.comments_url, {
+      headers: {
+        Accept: 'application/vnd.github.v3.full+json',
+      },
+      auth: {
+        username: clientID,
+        password: clientSecret,
+      },
+      params: {
+        per_page: perPage,
+        page,
+      },
+    })
     const { comments, issue: issue_2 } = this.state
     let isLoadOver = false
     const cs = comments.concat(res.data)
@@ -654,238 +652,14 @@ class GitalkComponent extends Component {
     }
   }
 
-  initing() {
-    return (
-      <div className='gt-initing'>
-        <i className='gt-loader' />
-        <p className='gt-initing-text'>Gitalk 加载中 ...</p>
-      </div>
-    )
-  }
-
-  noInit() {
-    const { user, isIssueCreating } = this.state
-    const { owner, repo, admin } = this.options
-    return (
-      <div className='gt-no-init' key='no-init'>
-        <p
-          dangerouslySetInnerHTML={{
-            __html: `未找到相关的 <a href="https://github.com/${owner}/${repo}/issues">Issues</a> 进行评论`,
-          }}
-        />
-        <p>
-          {`请联系 ${[]
-            .concat(admin)
-            .map((u) => `@${u}`)
-            .join(' ')}初始化创建`}
-        </p>
-        {this.isAdmin ? (
-          <p>
-            <Button
-              onClick={this.handleIssueCreate}
-              isLoading={isIssueCreating}
-              text='初始化 Issue'
-            />
-          </p>
-        ) : null}
-        {!user && (
-          <Button className='gt-btn-login' onClick={this.handleLogin} text='使用 GitHub 登录' />
-        )}
-      </div>
-    )
-  }
-
-  header() {
-    const { user, comment, isCreating, previewHtml, isPreview } = this.state
-    return (
-      <div className='gt-header' key='header'>
-        {user ? (
-          <Avatar className='gt-header-avatar' src={user.avatar_url} alt={user.login} />
-        ) : (
-          <a className='gt-avatar-github' onClick={this.handleLogin}>
-            <Svg className='gt-ico-github' name='github' />
-          </a>
-        )}
-        <div className='gt-header-comment'>
-          <textarea
-            ref={(t) => {
-              this.commentEL = t
-            }}
-            className={`gt-header-textarea ${isPreview ? 'hide' : ''}`}
-            value={comment}
-            onChange={this.handleCommentChange}
-            onFocus={this.handleCommentFocus}
-            onBlur={this.handleCommentBlur}
-            onKeyDown={this.handleCommentKeyDown}
-            placeholder='说点什么'
-          />
-          <div
-            className={`gt-header-preview markdown-body ${isPreview ? '' : 'hide'}`}
-            dangerouslySetInnerHTML={{ __html: previewHtml }}
-          />
-          <div className='gt-header-controls'>
-            <a
-              className='gt-header-controls-tip'
-              href='https://guides.github.com/features/mastering-markdown/'
-              target='_blank'
-              rel='noopener noreferrer'>
-              <Svg className='gt-ico-tip' name='tip' text='支持 Markdown 语法' />
-            </a>
-            {user && (
-              <Button
-                getRef={this.getRef}
-                className='gt-btn-public'
-                onClick={this.handleCommentCreate}
-                text='评论'
-                isLoading={isCreating}
-              />
-            )}
-
-            <Button
-              className='gt-btn-preview'
-              onClick={this.handleCommentPreview}
-              text={isPreview ? '预览' : '编辑'}
-              // isLoading={isPreviewing}
-            />
-            {!user && (
-              <Button className='gt-btn-login' onClick={this.handleLogin} text='使用 GitHub 登录' />
-            )}
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  comments() {
-    const { user, comments, isLoadOver, isLoadMore, pagerDirection } = this.state
-    const { language, flipMoveOptions, admin } = this.options
-    const totalComments = comments.concat([])
-    if (pagerDirection === 'last' && this.accessToken) {
-      totalComments.reverse()
-    }
-    return (
-      <div className='gt-comments' key='comments'>
-        <FlipMove {...flipMoveOptions}>
-          {totalComments.map((c) => (
-            <Comment
-              comment={c}
-              key={c.id}
-              user={user}
-              language={language}
-              commentedText='发表于'
-              admin={admin}
-              replyCallback={this.reply(c)}
-              likeCallback={
-                c.reactions && c.reactions.viewerHasReacted
-                  ? this.unLike.bind(this, c)
-                  : this.like.bind(this, c)
-              }
-            />
-          ))}
-        </FlipMove>
-        {!totalComments.length && <p className='gt-comments-null'>来做第一个留言的人吧！</p>}
-        {!isLoadOver && totalComments.length ? (
-          <div className='gt-comments-controls'>
-            <Button
-              className='gt-btn-loadmore'
-              onClick={this.handleCommentLoad}
-              isLoading={isLoadMore}
-              text='加载更多'
-            />
-          </div>
-        ) : null}
-      </div>
-    )
-  }
-  
-  meta() {
-    const { user, issue, isPopupVisible, pagerDirection, localComments } = this.state
-    const cnt = (issue && issue.comments) + localComments.length
-    const isDesc = pagerDirection === 'last'
-    const { updateCountCallback } = this.options
-
-    // window.GITALK_COMMENTS_COUNT = cnt
-    if (updateCountCallback && {}.toString.call(updateCountCallback) === '[object Function]') {
-      try {
-        updateCountCallback(cnt)
-      } catch (err) {
-        console.log('An error occurred executing the updateCountCallback:', err)
-      }
-    }
-
-    return (
-      <div className='gt-meta' key='meta'>
-        <span
-          className='gt-counts'
-          dangerouslySetInnerHTML={{
-            __html: `<a class="gt-link gt-link-counts" href="${issue &&
-              issue.html_url}" target="_blank" rel="noopener noreferrer">${cnt}</a>条评论`,
-          }}
-        />
-        {isPopupVisible && (
-          <div className='gt-popup'>
-            {user ? (
-              <Action
-                className={`gt-action-sortasc${!isDesc ? ' is--active' : ''}`}
-                onClick={this.handleSort('first')}
-                text='从旧到新排序'
-              />
-            ) : null}
-            {user ? (
-              <Action
-                className={`gt-action-sortdesc${isDesc ? ' is--active' : ''}`}
-                onClick={this.handleSort('last')}
-                text='从新到旧排序'
-              />
-            ) : null}
-            {user ? (
-              <Action className='gt-action-logout' onClick={this.handleLogout} text='注销' />
-            ) : (
-              <a className='gt-action gt-action-login' onClick={this.handleLogin}>
-                使用 GitHub 登录
-              </a>
-            )}
-            <div className='gt-copyright'>
-              <a
-                className='gt-link gt-link-project'
-                href='https://github.com/gitalk/gitalk'
-                target='_blank'
-                rel='noopener noreferrer'>
-                Gitalk
-              </a>
-              <span className='gt-version'>{GT_VERSION}</span>
-            </div>
-          </div>
-        )}
-        <div className='gt-user'>
-          {user ? (
-            <div
-              className={isPopupVisible ? 'gt-user-inner is--poping' : 'gt-user-inner'}
-              onClick={this.handlePopup}>
-              <span className='gt-user-name'>{user.login}</span>
-              <Svg className='gt-ico-arrdown' name='arrow_down' />
-            </div>
-          ) : (
-            <div
-              className={isPopupVisible ? 'gt-user-inner is--poping' : 'gt-user-inner'}
-              onClick={this.handlePopup}>
-              <span className='gt-user-name'>未登录用户</span>
-              <Svg className='gt-ico-arrdown' name='arrow_down' />
-            </div>
-          )}
-        </div>
-      </div>
-    )
-  }
-
   render() {
     const { isIniting, isNoInit, isOccurError, errorMsg, isInputFocused } = this.state
     return (
       <div className={`gt-container${isInputFocused ? ' gt-input-focused' : ''}`}>
-        {isIniting && this.initing()}
-        {!isIniting && (isNoInit ? [] : [this.meta()])}
+        {isIniting && <Initing />}
+        {!isIniting && (isNoInit ? [] : [<Meta />])}
         {isOccurError && <div className='gt-error'>{errorMsg}</div>}
-        {!isIniting && (isNoInit ? [this.noInit()] : [this.header(), this.comments()])}
+        {!isIniting && (isNoInit ? [<NoInit />] : [<Header />, <Comments />])}
       </div>
     )
   }

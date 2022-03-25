@@ -84,13 +84,13 @@ gitalk.render('gitalk-container')
 
 使用以下代码引入 Gitalk 组件
 
-```jsx
+```jsx | pure
 import GitalkComponent from 'gitalk/dist/gitalk-component'
 ```
 
 按以下方式在 React 中使用 Gitalk 组件
 
-```jsx
+```jsx | pure
 <GitalkComponent
   options={{
     clientID: '...',
