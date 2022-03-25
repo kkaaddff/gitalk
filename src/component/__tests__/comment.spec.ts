@@ -11,25 +11,26 @@ const comment = {
   user: {
     login: 'booxood',
     avatar_url: 'https://avatars0.githubusercontent.com/u/2151410?v=3',
-    html_url: 'https://github.com/booxood'
-  }
+    html_url: 'https://github.com/booxood',
+  },
 }
 
 const emailComment = {
   html_url: 'https://github.com/xxxx/xxxxx/issues/1#issuecomment-xxxxx',
-  body_html: '<div class="email-fragment">email response</div>↵<span class="email-hidden-toggle"><a href="#">…</a></span><div class="email-hidden-reply">↵<div class="email-signature-reply">------------------&amp;nbsp;原始邮件&amp;nbsp;------------------↵发件人:&amp;nbsp;↵↵↵↵↵xxxxxxxxxxxxxx↵↵—↵You are receiving this because you commented.↵Reply to this email directly, view it on GitHub, or unsubscribe.</div>↵</div>',
+  body_html:
+    '<div class="email-fragment">email response</div>↵<span class="email-hidden-toggle"><a href="#">…</a></span><div class="email-hidden-reply">↵<div class="email-signature-reply">------------------&amp;nbsp;原始邮件&amp;nbsp;------------------↵发件人:&amp;nbsp;↵↵↵↵↵xxxxxxxxxxxxxx↵↵—↵You are receiving this because you commented.↵Reply to this email directly, view it on GitHub, or unsubscribe.</div>↵</div>',
   created_at: '2017-06-30T09:01:19Z',
   user: {
     login: 'booxood',
     avatar_url: 'https://avatars0.githubusercontent.com/u/2151410?v=3',
-    html_url: 'https://github.com/booxood'
-  }
+    html_url: 'https://github.com/booxood',
+  },
 }
 
 describe('Comment', function () {
   it('render with no user', function () {
     const props = {
-      comment
+      comment,
     }
     const wrapper = shallow(<Comment {...props} />)
     expect(wrapper.hasClass('gt-comment')).toBe(true)
@@ -38,15 +39,17 @@ describe('Comment', function () {
     expect(wrapper.find('.gt-comment-username').prop('href')).toEqual(comment.user.html_url)
     expect(wrapper.find('.gt-comment-username').text()).toEqual(comment.user.login)
     expect(wrapper.find('.gt-comment-date').text()).toEqual(expect.stringMatching(/ago$/))
-    expect(wrapper.find('.gt-comment-body').render().html()).toEqual(expect.stringContaining(comment.body_html))
+    expect(wrapper.find('.gt-comment-body').render().html()).toEqual(
+      expect.stringContaining(comment.body_html)
+    )
     expect(wrapper.find('.gt-comment-like')).toHaveLength(0)
     expect(wrapper.find('.gt-comment-block-1')).toHaveLength(1)
   })
 
-  it('render with user but isn\'t creator', function () {
+  it("render with user but isn't creator", function () {
     const props = {
       comment,
-      user: { login: 'hello' }
+      user: { login: 'hello' },
     }
     const wrapper = shallow(<Comment {...props} />)
     expect(wrapper.find('.gt-comment-edit')).toHaveLength(0)
@@ -56,17 +59,17 @@ describe('Comment', function () {
   it('render with user is creator', function () {
     const props = {
       comment,
-      user: { login: 'booxood' }
+      user: { login: 'booxood' },
     }
     const wrapper = shallow(<Comment {...props} />)
     expect(wrapper.find('.gt-comment-edit')).toHaveLength(1)
     expect(wrapper.find('.gt-comment-block-2')).toHaveLength(1)
   })
 
-  it('render with creator isn\'t admin', function () {
+  it("render with creator isn't admin", function () {
     const props = {
       comment,
-      admin: ['hello']
+      admin: ['hello'],
     }
     const wrapper = shallow(<Comment {...props} />)
     expect(wrapper.hasClass('gt-comment-admin')).toBe(false)
@@ -75,7 +78,7 @@ describe('Comment', function () {
   it('render with creator is admin', function () {
     const props = {
       comment,
-      admin: ['booxood', 'hello']
+      admin: ['booxood', 'hello'],
     }
     const wrapper = shallow(<Comment {...props} />)
     expect(wrapper.hasClass('gt-comment-admin')).toBe(true)
@@ -85,7 +88,7 @@ describe('Comment', function () {
     const commentedText = 'commentedText'
     const props = {
       comment,
-      commentedText
+      commentedText,
     }
     const wrapper = shallow(<Comment {...props} />)
     expect(wrapper.find('.gt-comment-text').text()).toEqual(commentedText)
@@ -94,7 +97,7 @@ describe('Comment', function () {
   it('set props language=zh-TW', function () {
     const props = {
       comment,
-      language: 'zh-TW'
+      language: 'zh-TW',
     }
     const wrapper = shallow(<Comment {...props} />)
     expect(wrapper.find('.gt-comment-date').text()).toEqual(expect.stringContaining('前'))
@@ -103,7 +106,7 @@ describe('Comment', function () {
   it('set props language=ko', function () {
     const props = {
       comment,
-      language: 'ko'
+      language: 'ko',
     }
     const wrapper = shallow(<Comment {...props} />)
     expect(wrapper.find('.gt-comment-date').text()).toEqual(expect.stringContaining('전'))
@@ -112,7 +115,7 @@ describe('Comment', function () {
   it('set props language=de', function () {
     const props = {
       comment,
-      language: 'de'
+      language: 'de',
     }
     const wrapper = shallow(<Comment {...props} />)
     expect(wrapper.find('.gt-comment-date').text()).toEqual(expect.stringContaining('vor'))
@@ -125,11 +128,11 @@ describe('Comment', function () {
           totalCount: 10,
           viewerHasReacted: true,
           pageInfo: {
-            hasNextPage: false
+            hasNextPage: false,
           },
-          nodes: []
-        }
-      })
+          nodes: [],
+        },
+      }),
     }
 
     const wrapper = shallow(<Comment {...props} />)
@@ -143,11 +146,11 @@ describe('Comment', function () {
           totalCount: 100,
           viewerHasReacted: false,
           pageInfo: {
-            hasNextPage: true
+            hasNextPage: true,
           },
-          nodes: []
-        }
-      })
+          nodes: [],
+        },
+      }),
     }
 
     const wrapper = shallow(<Comment {...props} />)
@@ -156,7 +159,7 @@ describe('Comment', function () {
 
   it('render extended emailed comment and add event listener', function () {
     const props = {
-      comment: emailComment
+      comment: emailComment,
     }
     const wrapper = mount(<Comment {...props} />)
     expect(wrapper.render().find('.gt-comment-body > .email-fragment')).toHaveLength(1)

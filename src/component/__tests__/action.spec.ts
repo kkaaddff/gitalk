@@ -7,14 +7,14 @@ import Action from './action'
 describe('Action', function () {
   it('set props className', function () {
     const className = 'class'
-    expect(shallow(<Action className={className} />)
-      .hasClass(className)
-    ).toBe(true)
+    expect(shallow(<Action className={className} />).hasClass(className)).toBe(true)
   })
   it('set props text', function () {
     const text = 'text'
-    expect(shallow(<Action text={text} />)
-      .find('.gt-action-text').text()
+    expect(
+      shallow(<Action text={text} />)
+        .find('.gt-action-text')
+        .text()
     ).toEqual(text)
   })
   it('set props onClick', function () {

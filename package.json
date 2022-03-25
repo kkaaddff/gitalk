@@ -46,6 +46,7 @@
   "dependencies": {
     "autosize": "3.0.21",
     "axios": "^0.26.1",
+    "date-fns": "^2.28.0",
     "react-flip-move": "^3.0.4"
   },
   "jest": {

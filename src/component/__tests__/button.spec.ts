@@ -7,19 +7,21 @@ import Button from './button'
 describe('Button', function () {
   it('set props className', function () {
     const className = 'class'
-    expect(shallow(<Button className={className} />)
-      .hasClass(className)
-    ).toBe(true)
+    expect(shallow(<Button className={className} />).hasClass(className)).toBe(true)
   })
   it('set props text', function () {
     const text = 'text'
-    expect(shallow(<Button text={text} />)
-      .find('.gt-btn-text').text()
+    expect(
+      shallow(<Button text={text} />)
+        .find('.gt-btn-text')
+        .text()
     ).toEqual(text)
   })
   it('set props isLoading', function () {
-    expect(shallow(<Button isLoading={true} />)
-      .find('.gt-btn-loading').exists()
+    expect(
+      shallow(<Button isLoading={true} />)
+        .find('.gt-btn-loading')
+        .exists()
     ).toBe(true)
   })
   it('set props onClick', function () {
@@ -36,7 +38,9 @@ describe('Button', function () {
   })
   it('set props getRef', function () {
     let ref = null
-    const getRef = e => { ref = e }
+    const getRef = (e) => {
+      ref = e
+    }
     const wrapper = mount(<Button getRef={getRef} />)
     wrapper.find('button').simulate('mouseDown')
     expect(ref).not.toBe(null)

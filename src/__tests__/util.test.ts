@@ -4,7 +4,7 @@ describe('util', function () {
   const search = 'a=b&c=1'
   const searchObject = {
     a: 'b',
-    c: '1'
+    c: '1',
   }
 
   describe('queryParse', function () {
@@ -27,23 +27,30 @@ describe('util', function () {
 
   describe('formatErrorMsg', function () {
     it('err.response', function () {
-      expect(formatErrorMsg({
-        response: {
-          data: {
-            message: 'm1',
-            errors: [{
-              message: 'm21'
-            }, {
-              message: 'm22'
-            }]
-          }
-        }
-      })).toEqual('Error: m1. m21, m22')
+      expect(
+        formatErrorMsg({
+          response: {
+            data: {
+              message: 'm1',
+              errors: [
+                {
+                  message: 'm21',
+                },
+                {
+                  message: 'm22',
+                },
+              ],
+            },
+          },
+        })
+      ).toEqual('Error: m1. m21, m22')
     })
     it('err.msg', function () {
-      expect(formatErrorMsg({
-        message: 'm1'
-      })).toEqual('Error: m1')
+      expect(
+        formatErrorMsg({
+          message: 'm1',
+        })
+      ).toEqual('Error: m1')
     })
   })
 })
