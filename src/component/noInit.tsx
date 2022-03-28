@@ -1,16 +1,12 @@
+import { useComments } from '@/context/CommentsContext'
+import { useOperation } from '@/context/OperationContext'
 import React from 'react'
 import Button from './button'
 
-const NoInit = ({
-  isAdmin,
-  handleIssueCreate,
-  handleLogin,
-  user,
-  isIssueCreating,
-  owner,
-  repo,
-  admin,
-}: any) => {
+const NoInit = ({ isAdmin, user, isIssueCreating, owner, repo, admin }: any) => {
+  const { handleLogin } = useOperation()
+  const { handleIssueCreate } = useComments()
+
   return (
     <div className='gt-no-init' key='no-init'>
       <p

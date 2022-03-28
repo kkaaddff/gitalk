@@ -1,24 +1,25 @@
+import { useComments } from '@/context/CommentsContext'
+import { useOperation } from '@/context/OperationContext'
+import { useOptions } from '@/context/OptionsContext'
 import React from 'react'
 import Avatar from './avatar'
 import Button from './button'
 import Svg from './svg'
 
-const Header = ({
-  handleLogin,
-  user,
-  handleCommentPreview,
-  isPreview,
-  handleCommentChange,
-  previewHtml,
-  commentEL,
-  comment,
-  handleCommentFocus,
-  handleCommentBlur,
-  handleCommentKeyDown,
-  getRef,
-  handleCommentCreate,
-  isCreating,
-}: any) => {
+const Header = ({ user, isPreview, previewHtml, comment, isCreating }: any) => {
+  const {
+    handleCommentKeyDown,
+    handleCommentBlur,
+    handleCommentFocus,
+    handleCommentChange,
+    handleCommentCreate,
+    handleCommentPreview,
+  } = useComments()
+
+  const { commentEL } = useOptions()
+
+  const { handleLogin } = useOperation()
+
   return (
     <div className='gt-header' key='header'>
       {user ? (
@@ -30,9 +31,7 @@ const Header = ({
       )}
       <div className='gt-header-comment'>
         <textarea
-          ref={(t) => {
-            commentEL = t
-          }}
+          ref={commentEL}
           className={`gt-header-textarea ${isPreview ? 'hide' : ''}`}
           value={comment}
           onChange={handleCommentChange}
@@ -46,16 +45,16 @@ const Header = ({
           dangerouslySetInnerHTML={{ __html: previewHtml }}
         />
         <div className='gt-header-controls'>
-          <a
+          {/* 考虑支不支持 markdown */}
+          {/* <a
             className='gt-header-controls-tip'
             href='https://guides.github.com/features/mastering-markdown/'
             target='_blank'
             rel='noopener noreferrer'>
             <Svg className='gt-ico-tip' name='tip' text='支持 Markdown 语法' />
-          </a>
+          </a> */}
           {user && (
             <Button
-              getRef={getRef}
               className='gt-btn-public'
               onClick={handleCommentCreate}
               text='评论'
@@ -67,7 +66,7 @@ const Header = ({
             className='gt-btn-preview'
             onClick={handleCommentPreview}
             text={isPreview ? '预览' : '编辑'}
-            // isLoading={isPreviewing}
+            isLoading={isPreview}
           />
           {!user && (
             <Button className='gt-btn-login' onClick={handleLogin} text='使用 GitHub 登录' />

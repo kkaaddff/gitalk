@@ -3,20 +3,26 @@ import Avatar from './avatar'
 import Svg from './svg'
 import { formatDistanceToNow, parseISO } from 'date-fns'
 
-export default class Comment extends Component {
+export default class Comment extends Component<{ comment: any; [key: string]: any }> {
+  node: React.RefObject<HTMLDivElement>
+
+  constructor(props: Readonly<{ [key: string]: any; comment: any }>) {
+    super(props)
+    this.node = React.createRef<HTMLDivElement>()
+  }
+
   shouldComponentUpdate({ comment }) {
     return comment !== this.props.comment
   }
 
   componentDidMount() {
-    const comment = this.node
-    const emailResponse = comment.querySelector('.email-hidden-toggle>a')
+    const emailResponse = this.node.current.querySelector('.email-hidden-toggle>a')
     if (emailResponse) {
       emailResponse.addEventListener(
         'click',
         (e) => {
           e.preventDefault()
-          comment.querySelector('.email-hidden-reply').classList.toggle('expanded')
+          this.node.current.querySelector('.email-hidden-reply').classList.toggle('expanded')
         },
         true
       )
@@ -33,10 +39,12 @@ export default class Comment extends Component {
       likeCallback,
     } = this.props
     const enableEdit = user && comment.user.login === user.login
+
     const isAdmin = ~[]
       .concat(admin)
       .map((a) => a.toLowerCase())
       .indexOf(comment.user.login.toLowerCase())
+
     const reactions = comment.reactions
 
     let reactionTotalCount = ''
@@ -48,11 +56,7 @@ export default class Comment extends Component {
     }
 
     return (
-      <div
-        ref={(node) => {
-          this.node = node
-        }}
-        className={`gt-comment ${isAdmin ? 'gt-comment-admin' : ''}`}>
+      <div ref={this.node} className={`gt-comment ${isAdmin ? 'gt-comment-admin' : ''}`}>
         <Avatar
           className='gt-comment-avatar'
           src={comment.user && comment.user.avatar_url}

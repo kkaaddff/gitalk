@@ -3,7 +3,9 @@ import axios from 'axios'
 export const queryParse = (search = window.location.search) => {
   if (!search) return {}
   const queryString = search[0] === '?' ? search.substring(1) : search
-  const query = {}
+  const query: {
+    [key: string]: string
+  } = {}
   queryString.split('&').forEach((queryStr) => {
     const [key, value] = queryStr.split('=')
     /* istanbul ignore else */
@@ -33,12 +35,8 @@ export const axiosGithub = axios.create({
   },
 })
 
-export const getMetaContent = (name, content) => {
-  /* istanbul ignore next */
-  content || (content = 'content')
-  /* istanbul ignore next */
+export const getMetaContent = (name: string, content = 'content') => {
   const el = window.document.querySelector(`meta[name='${name}']`)
-  /* istanbul ignore next */
   return el && el.getAttribute(content)
 }
 
@@ -69,4 +67,12 @@ export const hasClassInParent = (element, ...className) => {
   if (yes) return yes
   /* istanbul ignore next */
   return element.parentNode && hasClassInParent(element.parentNode, className)
+}
+
+export function sleep(ttl: number) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(null)
+    }, ttl)
+  })
 }

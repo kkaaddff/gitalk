@@ -1,7 +1,13 @@
+import { useComments } from '@/context/CommentsContext'
+import { useOperation } from '@/context/OperationContext'
 import React from 'react'
 import FlipMove from 'react-flip-move'
 import Button from './button'
 import Comment from './comment'
+
+function reply(c: any) {
+  throw new Error('Function not implemented.')
+}
 
 const Comments = ({
   user,
@@ -9,18 +15,19 @@ const Comments = ({
   pagerDirection,
   accessToken,
   flipMoveOptions,
-  handleCommentLoad,
   admin,
-  unLike,
-  like,
-  isLoading,
   isLoadOver,
   isLoadMore,
 }: any) => {
+  const { like, unLike } = useOperation()
+  const { handleCommentLoad } = useComments()
+
   const totalComments = comments.concat([])
+
   if (pagerDirection === 'last' && accessToken) {
     totalComments.reverse()
   }
+
   return (
     <div className='gt-comments' key='comments'>
       <FlipMove {...flipMoveOptions}>
@@ -55,6 +62,3 @@ const Comments = ({
   )
 }
 export default Comments
-function reply(c: any) {
-  throw new Error('Function not implemented.')
-}

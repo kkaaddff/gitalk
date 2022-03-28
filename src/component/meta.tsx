@@ -1,26 +1,16 @@
 import { GT_VERSION } from '@/const'
+import { useComments } from '@/context/CommentsContext'
+import { useOperation } from '@/context/OperationContext'
+import { useGitalkState } from '@/context/StateContext'
 import React from 'react'
 import Action from './action'
-import Avatar from './avatar'
-import Button from './button'
 import Svg from './svg'
 
-const Meta = ({
-  handleLogin,
-  user,
-  handleCommentPreview,
-  isPreview,
-  handleCommentChange,
-  previewHtml,
-  handlePopup,
-  handleLogout,
-  handleSort,
-  isDesc,
-  isPopupVisible,
-  cnt,
-  issue,
-  updateCountCallback,
-}: any) => {
+const Meta = ({ user, cnt, issue, updateCountCallback }: any) => {
+  const { isPopupVisible, pagerDirection } = useGitalkState()
+  const { handleLogout, handlePopup, handleSort, handleLogin } = useOperation()
+  const isDesc = pagerDirection === 'last'
+  
   // window.GITALK_COMMENTS_COUNT = cnt
   if (updateCountCallback && {}.toString.call(updateCountCallback) === '[object Function]') {
     try {
